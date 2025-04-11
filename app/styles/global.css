@@ -1,10 +1,9 @@
-@tailwind base;
-@tailwind components;
+@import "tailwindcss/preflight";
 @tailwind utilities;
 
-/* Optional global overrides */
+/* Custom global styles (optional) */
 body {
-  @apply bg-white text-gray-900 antialiased;
+  @apply bg-white text-gray-800;
   font-family: 'Inter', sans-serif;
 }
 

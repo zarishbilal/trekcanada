@@ -1,15 +1,23 @@
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import "./globals.css";
+import "mapbox-gl/dist/mapbox-gl.css";
 
 export const metadata = {
-  title: "TrekCanada | Explore Parks Canada Trails",
-  description:
-    "Personalized trail guide with real-time info and offline access for Parks Canada.",
+  title: "Trek Canada",
+  description: "Discover and explore trails across Canada",
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className="bg-white text-gray-900">{children}</body>
+      <body className="forced-colors-mode">
+        <div className="min-h-screen flex flex-col">
+          <Header />
+          <main className="flex-grow">{children}</main>
+          <Footer />
+        </div>
+      </body>
     </html>
   );
 }

@@ -49,7 +49,9 @@ export default function FavoritesPage() {
   if (trails.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
-        <p className="text-gray-700">You haven't added any favorites yet.</p>
+        <p className="text-gray-700">
+          You haven&apos;t added any favorites yet.
+        </p>
       </div>
     );
   }

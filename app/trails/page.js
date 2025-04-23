@@ -101,7 +101,7 @@ export default function TrailsPage() {
         {searchQuery && (
           <div className="mb-6">
             <h2 className="text-2xl font-semibold text-gray-900">
-              Search Results for "{searchQuery}"
+              Search Results for &quot;{searchQuery}&quot;
             </h2>
             <p className="text-gray-600">
               {displayedTrails.length}{" "}

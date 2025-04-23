@@ -19,7 +19,7 @@ It only covers the land from these co ordinates:
 "ymin": 6569815.87936587,
 "xmax": -12796365.6213477,
 "ymax": 6867369.05726533,
-Which is mostly Alberta. This app will go through further updates to cover all Canada
+Which is mostly Alberta. This app will go through further updates to cover all Canada soon.
 
 ## Tech Stack
 

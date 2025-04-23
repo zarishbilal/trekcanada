@@ -3,14 +3,16 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useUserAuth } from "@/app/_utils/auth-context";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, firebaseSignOut } = useUserAuth();
 
   const navigation = [
     { name: "Home", href: "/" },
     { name: "Trails", href: "/trails" },
-    { name: "Favorites", href: "/favorites" },
+    ...(user ? [{ name: "Favorites", href: "/favorites" }] : []),
     { name: "Offline Maps", href: "/offline-maps" },
   ];
 
@@ -39,7 +41,18 @@ const Header = () => {
                 {item.name}
               </Link>
             ))}
-            <button className="btn btn-primary px-6 py-2">Sign In</button>
+            {user ? (
+              <button
+                onClick={firebaseSignOut}
+                className="btn btn-primary px-6 py-2"
+              >
+                Sign Out
+              </button>
+            ) : (
+              <Link href="/signin">
+                <button className="btn btn-primary px-6 py-2">Sign In</button>
+              </Link>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -86,7 +99,18 @@ const Header = () => {
                 {item.name}
               </Link>
             ))}
-            <button className="w-full btn btn-primary mt-4">Sign In</button>
+            {user ? (
+              <button
+                onClick={firebaseSignOut}
+                className="w-full btn btn-primary mt-4"
+              >
+                Sign Out
+              </button>
+            ) : (
+              <Link href="/signin">
+                <button className="w-full btn btn-primary mt-4">Sign In</button>
+              </Link>
+            )}
           </div>
         )}
       </nav>

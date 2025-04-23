@@ -31,7 +31,7 @@ const HeroSection = () => {
         <div className="absolute inset-0 backdrop-blur-[1px]" />
       </div>
 
-      <div className="custom-container relative z-10">
+      <div className="custom-container relative z-10 -mt-20">
         <div className="max-w-3xl mx-auto text-center">
           <h1 className="text-4xl md:text-6xl font-bold text-primary mb-6 leading-tight">
             Discover Canada's National Parks

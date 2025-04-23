@@ -105,12 +105,14 @@ export const searchTrailPlace = async (trailName, parkName, coordinates) => {
 
     console.log("Processed reviews:", reviews);
 
+    // Include the Google Place ID for deep-links to Maps
     return {
       name: detailsData.result.name,
       address: detailsData.result.formatted_address,
       rating: detailsData.result.rating,
       photos,
       reviews,
+      placeId, // the Google Places place_id
     };
   } catch (error) {
     console.error("Error fetching Google Places data:", error);

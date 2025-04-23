@@ -67,23 +67,29 @@ export const fetchTrails = async (params = {}) => {
     // Log the first feature's attributes if available
     if (features.length > 0) {
       const firstFeature = features[0];
-      console.log("🔍 First Feature Attributes:", {
-        ...firstFeature.attributes,
-        geometry: firstFeature.geometry ? "Geometry present" : "No geometry",
-      });
+      console.log("🔍 Raw First Feature:", firstFeature);
+      console.log("🔍 All Attributes:", firstFeature.attributes);
 
       // Log all available field names
-      console.log("📋 Available Fields:", Object.keys(firstFeature.attributes));
+      const allFields = Object.keys(firstFeature.attributes);
+      console.log("📋 All Available Fields:", allFields);
 
-      // Log the geometry structure
-      if (firstFeature.geometry) {
-        console.log("🗺️ Geometry Structure:", {
-          type: firstFeature.geometry.type,
-          hasCoordinates: !!firstFeature.geometry.coordinates,
-          coordinateCount: firstFeature.geometry.coordinates?.length,
-          firstCoordinate: firstFeature.geometry.coordinates?.[0],
-        });
-      }
+      // Log any fields that might contain park or location information
+      const locationFields = allFields.filter(
+        (field) =>
+          field.toLowerCase().includes("park") ||
+          field.toLowerCase().includes("location") ||
+          field.toLowerCase().includes("province") ||
+          field.toLowerCase().includes("territory")
+      );
+      console.log("📍 Potential Location Fields:", locationFields);
+
+      // Log the values of these fields
+      const locationValues = {};
+      locationFields.forEach((field) => {
+        locationValues[field] = firstFeature.attributes[field];
+      });
+      console.log("📍 Location Field Values:", locationValues);
     }
 
     // Transform the data into our application's format
@@ -93,55 +99,115 @@ export const fetchTrails = async (params = {}) => {
       // Extract coordinates from geometry
       let coordinates = null;
       if (feature.geometry?.paths) {
-        // ArcGIS polyline format
         coordinates = feature.geometry.paths[0];
       } else if (feature.geometry?.coordinates) {
-        // GeoJSON format
         coordinates = feature.geometry.coordinates;
       }
 
       // Transform coordinates from ArcGIS format to standard lat/lng
       if (coordinates) {
         coordinates = coordinates.map((coord) => {
-          // Convert from Web Mercator to WGS84 (standard lat/lng)
           const x = coord[0];
           const y = coord[1];
-
-          // Transformation formula for Web Mercator to WGS84
           const lng = (x / 20037508.34) * 180;
           const lat =
             (Math.atan(Math.exp((y / 20037508.34) * Math.PI)) * 360) / Math.PI -
             90;
-
           return [lng, lat];
         });
-
-        // Log the first coordinate for debugging
-        console.log("Original coordinate:", coordinates[0]);
-        console.log("Transformed coordinate:", coordinates[0]);
       }
 
-      // Log the raw length value from the first feature
-      if (feature === features[0]) {
-        console.log("📏 Raw Length Values:", {
-          allAttributes: attributes,
-          potentialLengthFields: Object.entries(attributes).filter(
-            ([key, value]) =>
-              key.toLowerCase().includes("length") ||
-              key.toLowerCase().includes("km") ||
-              key.toLowerCase().includes("meters")
-          ),
-        });
+      // Use Shape__Length (in meters) to determine total length and convert to kilometers
+      const lengthMeters =
+        typeof attributes.Shape__Length === "number"
+          ? attributes.Shape__Length
+          : 0;
+      const length = Number((lengthMeters / 1000).toFixed(1));
+
+      // Get park and province information based on coordinates
+      let parkName = null;
+      let provinceName = null;
+
+      if (coordinates && coordinates.length > 0) {
+        // Get the first coordinate (start of trail)
+        const [longitude, latitude] = coordinates[0];
+
+        // Map of park boundaries (simplified for now)
+        const parkBoundaries = {
+          "Banff National Park": {
+            minLat: 51.0,
+            maxLat: 52.0,
+            minLng: -116.5,
+            maxLng: -115.0,
+            province: "Alberta",
+          },
+          "Jasper National Park": {
+            minLat: 52.5,
+            maxLat: 53.5,
+            minLng: -118.5,
+            maxLng: -117.0,
+            province: "Alberta",
+          },
+          "Yoho National Park": {
+            minLat: 51.0,
+            maxLat: 52.0,
+            minLng: -117.0,
+            maxLng: -116.0,
+            province: "British Columbia",
+          },
+          "Kootenay National Park": {
+            minLat: 50.5,
+            maxLat: 51.5,
+            minLng: -116.5,
+            maxLng: -115.0,
+            province: "British Columbia",
+          },
+          "Waterton Lakes National Park": {
+            minLat: 48.5,
+            maxLat: 49.5,
+            minLng: -114.0,
+            maxLng: -113.0,
+            province: "Alberta",
+          },
+          "Pacific Rim National Park": {
+            minLat: 48.5,
+            maxLat: 49.5,
+            minLng: -125.5,
+            maxLng: -124.0,
+            province: "British Columbia",
+          },
+          "Gros Morne National Park": {
+            minLat: 49.0,
+            maxLat: 50.0,
+            minLng: -58.0,
+            maxLng: -57.0,
+            province: "Newfoundland and Labrador",
+          },
+        };
+
+        // Find which park the coordinates fall within
+        for (const [park, bounds] of Object.entries(parkBoundaries)) {
+          if (
+            latitude >= bounds.minLat &&
+            latitude <= bounds.maxLat &&
+            longitude >= bounds.minLng &&
+            longitude <= bounds.maxLng
+          ) {
+            parkName = park;
+            provinceName = bounds.province;
+            break;
+          }
+        }
       }
 
-      // Try to find a valid length value by checking all numeric fields
-      const numericFields = Object.entries(attributes)
-        .filter(([_, value]) => typeof value === "number" && value > 0)
-        .map(([key, value]) => ({ key, value }));
-
-      console.log("🔢 Numeric Fields:", numericFields);
-
-      const length = numericFields.length > 0 ? numericFields[0].value : 0;
+      // Log the raw values for debugging
+      console.log("📍 Trail Location Info:", {
+        name: attributes.Name_Official_e || attributes.Nom_Officiel_f,
+        parkName,
+        provinceName,
+        coordinates: coordinates ? coordinates[0] : null,
+        allAttributes: attributes,
+      });
 
       return {
         id: attributes.OBJECTID || Math.random().toString(36).substr(2, 9),
@@ -169,17 +235,9 @@ export const fetchTrails = async (params = {}) => {
               coordinates: coordinates,
             }
           : null,
-        park:
-          attributes.Park_Name_e ||
-          attributes.Park_Name_f ||
-          attributes.ParkName ||
-          attributes.Park ||
-          "Unknown Park",
-        province:
-          attributes.Province ||
-          attributes.Province_Territory ||
-          attributes.ProvinceTerritory ||
-          "Unknown Province",
+        park: parkName || "Unknown Park",
+        province: provinceName || "Unknown Province",
+        trailSystem: attributes.Trail_system_reseau_de_sentiers || null,
         address: attributes.Address || attributes.Location || null,
       };
     });

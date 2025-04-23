@@ -7,6 +7,7 @@ import { searchTrailPlace } from "@/services/googlePlaces";
 import TrailMap from "@/components/TrailMap";
 import { reverseGeocode } from "@/services/geocoding";
 import Image from "next/image";
+import AIInsights from "@/components/AIInsights";
 
 export default function TrailPage() {
   const params = useParams();
@@ -96,8 +97,8 @@ export default function TrailPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex flex-col lg:flex-row gap-8">
+        <div className="bg-white rounded-lg shadow-lg overflow-hidden lg:w-2/3">
           {/* Trail Header */}
           <div className="p-6">
             <h1 className="text-3xl font-bold text-gray-900">{trail.name}</h1>
@@ -161,9 +162,19 @@ export default function TrailPage() {
           {/* Google Places Photos */}
           {googleData?.photos && googleData.photos.length > 0 ? (
             <div className="p-6 border-t border-gray-200">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                Photos
-              </h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold text-gray-900">Photos</h2>
+                {googleData?.placeId && (
+                  <a
+                    href={`https://www.google.com/maps/search/?api=1&query_place_id=${googleData.placeId}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="border border-primary text-primary px-3 py-1 rounded hover:bg-primary hover:text-white transition-colors"
+                  >
+                    View All
+                  </a>
+                )}
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {googleData.photos.map((photo, index) => {
                   console.log(`Rendering photo ${index}:`, photo);
@@ -227,9 +238,19 @@ export default function TrailPage() {
           {/* Google Places Reviews */}
           {googleData?.reviews && googleData.reviews.length > 0 ? (
             <div className="p-6 border-t border-gray-200">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                Reviews
-              </h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold text-gray-900">Reviews</h2>
+                {googleData?.placeId && (
+                  <a
+                    href={`https://www.google.com/maps/search/?api=1&query_place_id=${googleData.placeId}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="border border-primary text-primary px-3 py-1 rounded hover:bg-primary hover:text-white transition-colors"
+                  >
+                    View All
+                  </a>
+                )}
+              </div>
               <div className="space-y-4">
                 {googleData.reviews.map((review, index) => (
                   <div key={index} className="bg-gray-50 p-4 rounded-lg">
@@ -280,6 +301,9 @@ export default function TrailPage() {
               </div>
             </div>
           ) : null}
+        </div>
+        <div className="lg:w-1/3">
+          <AIInsights trail={trail} reviews={googleData?.reviews} />
         </div>
       </div>
     </div>

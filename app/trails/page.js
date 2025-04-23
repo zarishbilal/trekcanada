@@ -11,6 +11,45 @@ export default function TrailsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const searchQuery = searchParams.get("search");
+  const [difficultyFilter, setDifficultyFilter] = useState("");
+  const [seasonFilter, setSeasonFilter] = useState("");
+  const [lengthFilter, setLengthFilter] = useState("");
+  const [timeFilter, setTimeFilter] = useState("");
+  const [accessibleFilter, setAccessibleFilter] = useState(false);
+  const [activityFilter, setActivityFilter] = useState("");
+
+  const filteredTrails = trails.filter((trail) => {
+    if (difficultyFilter && trail.difficulty !== difficultyFilter) return false;
+    if (
+      seasonFilter &&
+      !trail.season.toLowerCase().includes(seasonFilter.toLowerCase())
+    )
+      return false;
+    if (lengthFilter) {
+      if (lengthFilter === "short" && trail.length > 5) return false;
+      if (lengthFilter === "medium" && (trail.length < 5 || trail.length > 10))
+        return false;
+      if (lengthFilter === "long" && trail.length < 10) return false;
+    }
+    if (timeFilter) {
+      const durationMin = (trail.length / 4) * 60;
+      if (timeFilter === "short" && durationMin > 30) return false;
+      if (timeFilter === "medium" && (durationMin < 30 || durationMin > 60))
+        return false;
+      if (timeFilter === "long" && durationMin < 60) return false;
+    }
+    if (accessibleFilter) {
+      const isAccessible =
+        trail.width >= 1 && ["Paved", "Boardwalk"].includes(trail.surface);
+      if (!isAccessible) return false;
+    }
+    if (activityFilter === "bike") {
+      const bikeableSurfaces = ["Paved", "Gravel", "Boardwalk", "Mixed"];
+      if (!bikeableSurfaces.includes(trail.surface)) return false;
+    }
+    return true;
+  });
+  const displayedTrails = searchQuery ? filteredTrails : trails;
 
   useEffect(() => {
     const fetchTrailsData = async () => {
@@ -65,22 +104,118 @@ export default function TrailsPage() {
               Search Results for "{searchQuery}"
             </h2>
             <p className="text-gray-600">
-              {trails.length} {trails.length === 1 ? "trail" : "trails"} found
+              {displayedTrails.length}{" "}
+              {displayedTrails.length === 1 ? "trail" : "trails"} found
             </p>
+            <div className="mt-4 p-4 bg-white rounded-md shadow-sm">
+              <h3 className="text-lg font-semibold mb-2">Filters</h3>
+              <div className="flex flex-wrap gap-4 items-center">
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Difficulty
+                  </label>
+                  <select
+                    value={difficultyFilter}
+                    onChange={(e) => setDifficultyFilter(e.target.value)}
+                    className="border border-gray-300 rounded-md p-1"
+                  >
+                    <option value="">All</option>
+                    <option value="easy">Easy</option>
+                    <option value="moderate">Moderate</option>
+                    <option value="difficult">Difficult</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Season
+                  </label>
+                  <select
+                    value={seasonFilter}
+                    onChange={(e) => setSeasonFilter(e.target.value)}
+                    className="border border-gray-300 rounded-md p-1"
+                  >
+                    <option value="">All</option>
+                    <option value="summer">Summer</option>
+                    <option value="winter">Winter</option>
+                    <option value="year-round">Year-round</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Length
+                  </label>
+                  <select
+                    value={lengthFilter}
+                    onChange={(e) => setLengthFilter(e.target.value)}
+                    className="border border-gray-300 rounded-md p-1"
+                  >
+                    <option value="">All</option>
+                    <option value="short">0-5 km</option>
+                    <option value="medium">5-10 km</option>
+                    <option value="long">10+ km</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Duration
+                  </label>
+                  <select
+                    value={timeFilter}
+                    onChange={(e) => setTimeFilter(e.target.value)}
+                    className="border border-gray-300 rounded-md p-1"
+                  >
+                    <option value="">All</option>
+                    <option value="short">0-30 min</option>
+                    <option value="medium">30-60 min</option>
+                    <option value="long">60+ min</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Activity
+                  </label>
+                  <select
+                    value={activityFilter}
+                    onChange={(e) => setActivityFilter(e.target.value)}
+                    className="border border-gray-300 rounded-md p-1"
+                  >
+                    <option value="">All</option>
+                    <option value="walk">Walk</option>
+                    <option value="bike">Bike</option>
+                  </select>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="accessibleFilter"
+                    checked={accessibleFilter}
+                    onChange={(e) => setAccessibleFilter(e.target.checked)}
+                    className="h-4 w-4"
+                  />
+                  <label
+                    htmlFor="accessibleFilter"
+                    className="text-sm font-medium"
+                  >
+                    Accessible
+                  </label>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
-        {trails.length === 0 ? (
+        {displayedTrails.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-gray-600">
               {searchQuery
-                ? "No trails found matching your search."
+                ? "No trails match your search and selected filters."
                 : "No trails available at the moment."}
             </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {trails.map((trail) => (
+            {displayedTrails.map((trail) => (
               <TrailCard key={trail.id} trail={trail} />
             ))}
           </div>

@@ -164,7 +164,7 @@ export default function TrailPage() {
             <div className="p-6 border-t border-gray-200">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-semibold text-gray-900">Photos</h2>
-                {googleData?.placeId && (
+                {/* {googleData?.placeId && (
                   <a
                     href={`https://www.google.com/maps/search/?api=1&query_place_id=${googleData.placeId}`}
                     target="_blank"
@@ -173,7 +173,7 @@ export default function TrailPage() {
                   >
                     View All
                   </a>
-                )}
+                )} */}
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {googleData.photos.map((photo, index) => {
@@ -240,7 +240,7 @@ export default function TrailPage() {
             <div className="p-6 border-t border-gray-200">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-semibold text-gray-900">Reviews</h2>
-                {googleData?.placeId && (
+                {/* {googleData?.placeId && (
                   <a
                     href={`https://www.google.com/maps/search/?api=1&query_place_id=${googleData.placeId}`}
                     target="_blank"
@@ -249,7 +249,7 @@ export default function TrailPage() {
                   >
                     View All
                   </a>
-                )}
+                )} */}
               </div>
               <div className="space-y-4">
                 {googleData.reviews.map((review, index) => (

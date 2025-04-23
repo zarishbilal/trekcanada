@@ -13,7 +13,6 @@ const Header = () => {
     { name: "Home", href: "/" },
     { name: "Trails", href: "/trails" },
     ...(user ? [{ name: "Favorites", href: "/favorites" }] : []),
-    { name: "Offline Maps", href: "/offline-maps" },
   ];
 
   return (

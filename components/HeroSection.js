@@ -34,11 +34,11 @@ const HeroSection = () => {
       <div className="custom-container relative z-10 -mt-20">
         <div className="max-w-3xl mx-auto text-center">
           <h1 className="text-4xl md:text-6xl font-bold text-primary mb-6 leading-tight">
-            Discover Canada's National Parks
+            Discover Canada&apos;s National Parks
           </h1>
           <p className="text-xl text-gray-800 mb-8 max-w-2xl mx-auto">
             Explore breathtaking trails, stunning landscapes, and unforgettable
-            adventures in Canada's most beautiful natural spaces.
+            adventures in Canada&apos;s most beautiful natural spaces.
           </p>
 
           {/* Search Bar */}

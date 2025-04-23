@@ -25,8 +25,8 @@ const Footer = () => {
               </span>
             </div>
             <p className="text-white/80 mb-4">
-              Your comprehensive guide to exploring Canada's national parks and
-              trails.
+              Your comprehensive guide to exploring Canada&apos;s national parks
+              and trails.
             </p>
             <div className="flex gap-4">
               <a

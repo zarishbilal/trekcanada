@@ -10,25 +10,23 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: read # This is required for actions/checkout
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: Set up Node.js version
         uses: actions/setup-node@v3
         with:
           node-version: '22.x'
 
-      - name: Install dependencies and build
+      - name: npm install, build, and test
         run: |
           npm install
-          npm run build
-
+          npm run build --if-present
+          npm run test --if-present
       - name: Zip artifact for deployment
-        run: |
-          zip -r release.zip . -x "*.git*" "*.github*" "node_modules/*" "release.zip"
+        run: zip -r release.zip ./
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
@@ -39,9 +37,10 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: build
+    
     permissions:
-      id-token: write
-      contents: read
+      id-token: write # This is required for requesting the JWT
+      contents: read # This is required for actions/checkout
 
     steps:
       - name: Download artifact from build job
@@ -51,7 +50,7 @@ jobs:
 
       - name: Unzip artifact for deployment
         run: unzip release.zip
-
+      
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -59,9 +58,9 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_238940C03ABC4D52A5EAE8B5AB1B2814 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_52BBFF95671A4BB6BD701CD97478C9BA }}
 
-      - name: Deploy to Azure Web App (staging slot)
+      - name: 'Deploy to Azure Web App'
+        id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'TrekCanada'
-          slot-name: 'staging'
           package: .

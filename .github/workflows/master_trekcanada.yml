@@ -10,7 +10,6 @@ env:
   AZURE_WEBAPP_NAME: 'TrekCanada'
   AZURE_WEBAPP_PACKAGE_PATH: './release.zip'
   NODE_VERSION: '22.x'
-  PORT: 8080  # Azure uses port 8080 by default
 
 jobs:
   build-and-deploy:
@@ -38,16 +37,7 @@ jobs:
       - name: Prepare deployment package
         run: |
           mkdir -p deploy
-          cp -r .next public package.json package-lock.json next.config.js node_modules deploy/
-          
-          # Create production-ready start command
-          echo '{"scripts": {"start": "next start -p $PORT"}}' > deploy/azure-config.json
-          jq -s '.[0] * .[1]' deploy/package.json deploy/azure-config.json > deploy/package-temp.json
-          mv deploy/package-temp.json deploy/package.json
-          
-          # Create .env.production file
-          echo "PORT=$PORT" > deploy/.env.production
-          
+          cp -r .next public package.json package-lock.json next.config.js server.js node_modules deploy/
           cd deploy
           zip -r ../release.zip . -x '*.git*' -x '*.env.local*' -x '*node_modules/.cache*'
 
@@ -63,4 +53,3 @@ jobs:
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
           package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
-          runtime-stack: 'NODE|22-lts'

@@ -60,7 +60,7 @@ export default function Home() {
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
               Discover the most visited trails this season across Canada&apos;s
-              national parks.
+              National Parks.
             </p>
           </div>
 

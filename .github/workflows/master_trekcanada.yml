@@ -6,6 +6,11 @@ on:
       - master
   workflow_dispatch:
 
+env:
+  AZURE_WEBAPP_NAME: 'TrekCanada'
+  AZURE_WEBAPP_PACKAGE_PATH: './release.zip'
+  NODE_VERSION: '22.x'
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -17,23 +22,24 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: Set up Node.js ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v3
         with:
-          node-version: '22.x'
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build Next.js app
         run: npm run build
 
       - name: Prepare deployment package
         run: |
-          mkdir deploy
-          cp -r .next public package.json next.config.js node_modules deploy/
+          mkdir -p deploy
+          cp -r .next public package.json package-lock.json next.config.js node_modules deploy/
           cd deploy
-          zip -r ../release.zip .
+          zip -r ../release.zip . -x '*.git*' -x '*.env*' -x '*node_modules/.cache*'
 
       - name: Login to Azure
         uses: azure/login@v2
@@ -45,5 +51,7 @@ jobs:
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'TrekCanada'
-          package: release.zip
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+          runtime-stack: 'NODE|22-lts'
+          startup-command: 'npm start'

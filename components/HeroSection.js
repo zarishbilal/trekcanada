@@ -17,7 +17,7 @@ const HeroSection = () => {
 
   return (
     <div className="relative min-h-[80vh] flex items-center">
-      {/* Background Image */}
+      {/* Background Image from blob */}
       <div className="absolute inset-0 z-0">
         <Image
           src="https://trekcanadastorage.blob.core.windows.net/trekcanadacontainer/hero-bg-1.jpg"

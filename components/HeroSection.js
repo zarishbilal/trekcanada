@@ -17,10 +17,10 @@ const HeroSection = () => {
 
   return (
     <div className="relative min-h-[80vh] flex items-center">
-      {/* Background Image */}
+      /* Background Image */
       <div className="absolute inset-0 z-0">
         <Image
-          src="/hero-bg-1.jpg"
+          src="https://trekcanadastorage.blob.core.windows.net/trekcanadacontainer/hero-bg-1.jpg"
           alt="Canadian Rockies"
           fill
           quality={100}
@@ -30,7 +30,6 @@ const HeroSection = () => {
         />
         <div className="absolute inset-0 backdrop-blur-[1px]" />
       </div>
-
       <div className="custom-container relative z-10 -mt-20">
         <div className="max-w-3xl mx-auto text-center">
           <h1 className="text-4xl md:text-6xl font-bold text-primary mb-6 leading-tight">

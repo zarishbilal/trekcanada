@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import dynamic from "next/dynamic";
+import dynamic from "next/dist/shared/lib/dynamic";
 
 // Dynamically import the Map component to avoid SSR issues
 const Map = dynamic(() => import("react-map-gl").then((mod) => mod.Map), {

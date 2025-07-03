@@ -20,7 +20,7 @@ const HeroSection = () => {
       {/* Background Image from blob */}
       <div className="absolute inset-0 z-0">
         <Image
-          src="https://trekcanadastorage.blob.core.windows.net/trekcanadacontainer/hero-bg-1.jpg"
+          src="/hero-bg-1.jpg" // Replace with your image path
           alt="Canadian Rockies"
           fill
           quality={100}

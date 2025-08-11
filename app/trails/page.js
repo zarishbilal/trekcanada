@@ -4,7 +4,9 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import TrailCard from "@/components/TrailCard";
 import SearchBar from "@/components/SearchBar";
+import TrailsMapView from "@/components/TrailsMapView";
 import { searchTrails, fetchTrails } from "@/services/trails";
+import { MapIcon, ListBulletIcon } from "@heroicons/react/24/outline";
 
 export default function TrailsPage() {
   const searchParams = useSearchParams();
@@ -18,6 +20,7 @@ export default function TrailsPage() {
   const [timeFilter, setTimeFilter] = useState("");
   const [accessibleFilter, setAccessibleFilter] = useState(false);
   const [activityFilter, setActivityFilter] = useState("");
+  const [viewMode, setViewMode] = useState("list"); // "list" or "map"
 
   const filteredTrails = trails.filter((trail) => {
     if (difficultyFilter && trail.difficulty !== difficultyFilter) return false;
@@ -110,6 +113,34 @@ export default function TrailsPage() {
           </p>
           {/* Search Bar */}
           <SearchBar />
+        </div>
+
+        {/* View Mode Toggle */}
+        <div className="flex justify-center mb-8">
+          <div className="inline-flex rounded-lg border border-gray-200 bg-white p-1">
+            <button
+              onClick={() => setViewMode("list")}
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                viewMode === "list"
+                  ? "bg-teal-600 text-white shadow-sm"
+                  : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+              }`}
+            >
+              <ListBulletIcon className="h-4 w-4" />
+              List View
+            </button>
+            <button
+              onClick={() => setViewMode("map")}
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                viewMode === "map"
+                  ? "bg-teal-600 text-white shadow-sm"
+                  : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+              }`}
+            >
+              <MapIcon className="h-4 w-4" />
+              Map View
+            </button>
+          </div>
         </div>
 
         {searchQuery && (
@@ -228,19 +259,48 @@ export default function TrailsPage() {
           </div>
         )}
 
-        {displayedTrails.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-gray-600">
-              {searchQuery
-                ? "No trails match your search and selected filters."
-                : "No trails available at the moment."}
-            </p>
-          </div>
+        {/* Content Area - List or Map View */}
+        {viewMode === "list" ? (
+          // List View
+          displayedTrails.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-gray-600">
+                {searchQuery
+                  ? "No trails match your search and selected filters."
+                  : "No trails available at the moment."}
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {displayedTrails.map((trail) => (
+                <TrailCard key={trail.id} trail={trail} />
+              ))}
+            </div>
+          )
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {displayedTrails.map((trail) => (
-              <TrailCard key={trail.id} trail={trail} />
-            ))}
+          // Map View
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">
+                {searchQuery
+                  ? `${displayedTrails.length} trails found for "${searchQuery}"`
+                  : `${displayedTrails.length} trails on map`}
+              </h3>
+              <p className="text-sm text-gray-600">
+                Click on markers to view trail details
+              </p>
+            </div>
+            {displayedTrails.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-gray-600">
+                  {searchQuery
+                    ? "No trails match your search and selected filters."
+                    : "No trails available to display on map."}
+                </p>
+              </div>
+            ) : (
+              <TrailsMapView trails={displayedTrails} />
+            )}
           </div>
         )}
       </div>

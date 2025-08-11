@@ -22,7 +22,7 @@ export default function Home() {
         const currentSeason =
           currentMonth >= 5 && currentMonth <= 9 ? "summer" : "winter";
 
-        // Filter trails for current season, length < 5km, and sort by length (as a proxy for popularity)
+        // Filter trails for current season, length < 2km, and sort by length (as a proxy for popularity)
         const seasonalTrails = allTrails
           .filter((trail) => {
             const trailSeason = trail.season.toLowerCase();
@@ -31,13 +31,23 @@ export default function Home() {
                 ? trailSeason.includes("summer") || trailSeason.includes("all")
                 : trailSeason.includes("winter") || trailSeason.includes("all");
 
-            // Only include trails less than 5 km
-            const isShortTrail = trail.length < 5;
+            // Only include trails less than 2 km
+            const trailLength = parseFloat(trail.length);
+            const isShortTrail = trailLength < 2;
+
+            console.log(
+              `Trail: ${trail.name}, Length: ${trail.length} (${trailLength}), Is Short: ${isShortTrail}, Season Match: ${isSeasonMatch}`
+            );
 
             return isSeasonMatch && isShortTrail;
           })
-          .sort((a, b) => b.length - a.length) // Sort by length as a proxy for popularity
+          .sort((a, b) => parseFloat(b.length) - parseFloat(a.length)) // Sort by length as a proxy for popularity
           .slice(0, 3); // Get top 3 trails
+
+        console.log(
+          "Featured trails:",
+          seasonalTrails.map((t) => ({ name: t.name, length: t.length }))
+        );
 
         setFeaturedTrails(seasonalTrails);
       } catch (err) {

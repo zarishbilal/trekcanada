@@ -20,7 +20,7 @@ const HeroSection = () => {
   };
 
   return (
-    <div className="relative min-h-[80vh] flex items-center">
+    <div className="relative min-h-[70vh] sm:min-h-[75vh] md:min-h-[80vh] flex items-center pt-20 sm:pt-16 md:pt-12">
       {/* Background Image from blob */}
       <div className="absolute inset-0 z-0">
         <Image
@@ -34,7 +34,7 @@ const HeroSection = () => {
         />
         <div className="absolute inset-0 backdrop-blur-[1px]" />
       </div>
-      <div className="custom-container relative z-10 -mt-20">
+      <div className="custom-container relative z-10">
         <div className="max-w-3xl mx-auto text-center">
           <h1 className="text-4xl md:text-6xl font-bold text-primary mb-6 leading-tight">
             Discover Canada&apos;s National Parks

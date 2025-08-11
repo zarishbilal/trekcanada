@@ -105,7 +105,8 @@ export default function TrailsPage() {
             Explore Canadian Trails
           </h1>
           <p className="text-lg text-gray-600 mb-6">
-            Discover amazing hiking trails across Canada's beautiful landscapes
+            Discover amazing hiking trails across Canada&apos;s beautiful
+            landscapes
           </p>
           {/* Search Bar */}
           <SearchBar />

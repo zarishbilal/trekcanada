@@ -93,7 +93,7 @@ const TrailMap = ({ trail }) => {
         coordinates: validCoordinates,
       },
     };
-  }, [trail.geometry]);
+  }, [trail, trail.geometry]);
 
   if (!process.env.NEXT_PUBLIC_MAPBOX_TOKEN) {
     return (

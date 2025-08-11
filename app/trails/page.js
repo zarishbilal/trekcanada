@@ -190,7 +190,34 @@ export default function TrailsPage() {
                 {showFilters ? "Hide Filters" : "Show Filters"}
               </button>
             </div>
+          </div>
+        )}
 
+        {!searchQuery && (
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-2xl font-semibold text-gray-900">All Trails</h2>
+                <p className="text-gray-600">
+                  Browse {displayedTrails.length} trails across Canada
+                </p>
+              </div>
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
+                  showFilters
+                    ? "bg-teal-600 text-white border-teal-600"
+                    : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
+                }`}
+              >
+                <AdjustmentsHorizontalIcon className="h-4 w-4" />
+                {showFilters ? "Hide Filters" : "Show Filters"}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Filters Section - Available for both search and all trails */}
             {showFilters && (
               <div className="p-4 bg-white rounded-md shadow-sm border border-gray-200">
                 <h3 className="text-lg font-semibold mb-4">Filters</h3>
@@ -350,9 +377,9 @@ export default function TrailsPage() {
                   </div>
                 </div>
               </div>
-            )}
+            )
+          }
           </div>
-        )}
 
         {!searchQuery && (
           <div className="mb-6">

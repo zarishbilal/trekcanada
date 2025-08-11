@@ -6,7 +6,11 @@ import TrailCard from "@/components/TrailCard";
 import SearchBar from "@/components/SearchBar";
 import TrailsMapView from "@/components/TrailsMapView";
 import { searchTrails, fetchTrails } from "@/services/trails";
-import { MapIcon, ListBulletIcon } from "@heroicons/react/24/outline";
+import {
+  MapIcon,
+  ListBulletIcon,
+  AdjustmentsHorizontalIcon,
+} from "@heroicons/react/24/outline";
 
 export default function TrailsPage() {
   const searchParams = useSearchParams();
@@ -17,10 +21,15 @@ export default function TrailsPage() {
   const [difficultyFilter, setDifficultyFilter] = useState("");
   const [seasonFilter, setSeasonFilter] = useState("");
   const [lengthFilter, setLengthFilter] = useState("");
+  const [minLength, setMinLength] = useState("");
+  const [maxLength, setMaxLength] = useState("");
   const [timeFilter, setTimeFilter] = useState("");
+  const [minDuration, setMinDuration] = useState("");
+  const [maxDuration, setMaxDuration] = useState("");
   const [accessibleFilter, setAccessibleFilter] = useState(false);
   const [activityFilter, setActivityFilter] = useState("");
   const [viewMode, setViewMode] = useState("list"); // "list" or "map"
+  const [showFilters, setShowFilters] = useState(false);
 
   const filteredTrails = trails.filter((trail) => {
     if (difficultyFilter && trail.difficulty !== difficultyFilter) return false;
@@ -29,18 +38,32 @@ export default function TrailsPage() {
       !trail.season.toLowerCase().includes(seasonFilter.toLowerCase())
     )
       return false;
-    if (lengthFilter) {
+
+    // Length filtering with custom range
+    if (lengthFilter === "custom") {
+      const min = parseFloat(minLength) || 0;
+      const max = parseFloat(maxLength) || Infinity;
+      if (trail.length < min || trail.length > max) return false;
+    } else if (lengthFilter) {
       if (lengthFilter === "short" && trail.length > 5) return false;
-      if (lengthFilter === "medium" && (trail.length < 5 || trail.length > 10))
+      if (lengthFilter === "medium" && (trail.length < 5 || trail.length > 15))
         return false;
-      if (lengthFilter === "long" && trail.length < 10) return false;
+      if (lengthFilter === "long" && trail.length < 15) return false;
     }
+
     if (timeFilter) {
-      const durationMin = (trail.length / 4) * 60;
-      if (timeFilter === "short" && durationMin > 30) return false;
-      if (timeFilter === "medium" && (durationMin < 30 || durationMin > 60))
-        return false;
-      if (timeFilter === "long" && durationMin < 60) return false;
+      const durationMin = (trail.length / 4) * 60; // Estimate: 4 km/h hiking speed
+
+      if (timeFilter === "custom") {
+        const min = parseFloat(minDuration) || 0;
+        const max = parseFloat(maxDuration) || Infinity;
+        if (durationMin < min || durationMin > max) return false;
+      } else {
+        if (timeFilter === "short" && durationMin > 30) return false;
+        if (timeFilter === "medium" && (durationMin < 30 || durationMin > 120))
+          return false;
+        if (timeFilter === "long" && durationMin < 120) return false;
+      }
     }
     if (accessibleFilter) {
       const isAccessible =
@@ -145,109 +168,189 @@ export default function TrailsPage() {
 
         {searchQuery && (
           <div className="mb-6">
-            <h2 className="text-2xl font-semibold text-gray-900">
-              Search Results for &quot;{searchQuery}&quot;
-            </h2>
-            <p className="text-gray-600">
-              {displayedTrails.length}{" "}
-              {displayedTrails.length === 1 ? "trail" : "trails"} found
-            </p>
-            <div className="mt-4 p-4 bg-white rounded-md shadow-sm">
-              <h3 className="text-lg font-semibold mb-2">Filters</h3>
-              <div className="flex flex-wrap gap-4 items-center">
-                <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Difficulty
-                  </label>
-                  <select
-                    value={difficultyFilter}
-                    onChange={(e) => setDifficultyFilter(e.target.value)}
-                    className="border border-gray-300 rounded-md p-1"
-                  >
-                    <option value="">All</option>
-                    <option value="easy">Easy</option>
-                    <option value="moderate">Moderate</option>
-                    <option value="difficult">Difficult</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Season
-                  </label>
-                  <select
-                    value={seasonFilter}
-                    onChange={(e) => setSeasonFilter(e.target.value)}
-                    className="border border-gray-300 rounded-md p-1"
-                  >
-                    <option value="">All</option>
-                    <option value="summer">Summer</option>
-                    <option value="winter">Winter</option>
-                    <option value="year-round">Year-round</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Length
-                  </label>
-                  <select
-                    value={lengthFilter}
-                    onChange={(e) => setLengthFilter(e.target.value)}
-                    className="border border-gray-300 rounded-md p-1"
-                  >
-                    <option value="">All</option>
-                    <option value="short">0 km</option>
-                    <option value="short">1-5 km</option>
-                    <option value="medium">5-10 km</option>
-                    <option value="long">10+ km</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Duration
-                  </label>
-                  <select
-                    value={timeFilter}
-                    onChange={(e) => setTimeFilter(e.target.value)}
-                    className="border border-gray-300 rounded-md p-1"
-                  >
-                    <option value="">All</option>
-                    <option value="short">0-30 min</option>
-                    <option value="medium">30-60 min</option>
-                    <option value="long">60+ min</option>
-                  </select>
-                </div>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-2xl font-semibold text-gray-900">
+                  Search Results for &quot;{searchQuery}&quot;
+                </h2>
+                <p className="text-gray-600">
+                  {displayedTrails.length}{" "}
+                  {displayedTrails.length === 1 ? "trail" : "trails"} found
+                </p>
+              </div>
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
+                  showFilters
+                    ? "bg-teal-600 text-white border-teal-600"
+                    : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
+                }`}
+              >
+                <AdjustmentsHorizontalIcon className="h-4 w-4" />
+                {showFilters ? "Hide Filters" : "Show Filters"}
+              </button>
+            </div>
 
-                <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Activity
-                  </label>
-                  <select
-                    value={activityFilter}
-                    onChange={(e) => setActivityFilter(e.target.value)}
-                    className="border border-gray-300 rounded-md p-1"
-                  >
-                    <option value="">All</option>
-                    <option value="walk">Walk</option>
-                    <option value="bike">Bike</option>
-                  </select>
-                </div>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    id="accessibleFilter"
-                    checked={accessibleFilter}
-                    onChange={(e) => setAccessibleFilter(e.target.checked)}
-                    className="h-4 w-4"
-                  />
-                  <label
-                    htmlFor="accessibleFilter"
-                    className="text-sm font-medium"
-                  >
-                    Accessible
-                  </label>
+            {showFilters && (
+              <div className="p-4 bg-white rounded-md shadow-sm border border-gray-200">
+                <h3 className="text-lg font-semibold mb-4">Filters</h3>
+                <div className="flex flex-wrap gap-4 items-start">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Difficulty
+                    </label>
+                    <select
+                      value={difficultyFilter}
+                      onChange={(e) => setDifficultyFilter(e.target.value)}
+                      className="border border-gray-300 rounded-md p-1"
+                    >
+                      <option value="">All</option>
+                      <option value="easy">Easy</option>
+                      <option value="moderate">Moderate</option>
+                      <option value="difficult">Difficult</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Season
+                    </label>
+                    <select
+                      value={seasonFilter}
+                      onChange={(e) => setSeasonFilter(e.target.value)}
+                      className="border border-gray-300 rounded-md p-1"
+                    >
+                      <option value="">All</option>
+                      <option value="summer">Summer</option>
+                      <option value="winter">Winter</option>
+                      <option value="year-round">Year-round</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Length
+                    </label>
+                    <select
+                      value={lengthFilter}
+                      onChange={(e) => {
+                        setLengthFilter(e.target.value);
+                        // Reset custom inputs when switching away from custom
+                        if (e.target.value !== "custom") {
+                          setMinLength("");
+                          setMaxLength("");
+                        }
+                      }}
+                      className="border border-gray-300 rounded-md p-1 mb-2"
+                    >
+                      <option value="">All</option>
+                      <option value="short">Short (0-5 km)</option>
+                      <option value="medium">Medium (5-15 km)</option>
+                      <option value="long">Long (15+ km)</option>
+                      <option value="custom">Custom Range</option>
+                    </select>
+                    {lengthFilter === "custom" && (
+                      <div className="flex gap-2 items-center">
+                        <input
+                          type="number"
+                          placeholder="Min km"
+                          value={minLength}
+                          onChange={(e) => setMinLength(e.target.value)}
+                          className="border border-gray-300 rounded-md p-1 w-20 text-sm"
+                          min="0"
+                          step="0.1"
+                        />
+                        <span className="text-xs text-gray-500">to</span>
+                        <input
+                          type="number"
+                          placeholder="Max km"
+                          value={maxLength}
+                          onChange={(e) => setMaxLength(e.target.value)}
+                          className="border border-gray-300 rounded-md p-1 w-20 text-sm"
+                          min="0"
+                          step="0.1"
+                        />
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Duration
+                    </label>
+                    <select
+                      value={timeFilter}
+                      onChange={(e) => {
+                        setTimeFilter(e.target.value);
+                        // Reset custom inputs when switching away from custom
+                        if (e.target.value !== "custom") {
+                          setMinDuration("");
+                          setMaxDuration("");
+                        }
+                      }}
+                      className="border border-gray-300 rounded-md p-1 mb-2"
+                    >
+                      <option value="">All</option>
+                      <option value="short">Short (0-30 min)</option>
+                      <option value="medium">Medium (30min-2h)</option>
+                      <option value="long">Long (2+ hours)</option>
+                      <option value="custom">Custom Range</option>
+                    </select>
+                    {timeFilter === "custom" && (
+                      <div className="flex gap-2 items-center">
+                        <input
+                          type="number"
+                          placeholder="Min"
+                          value={minDuration}
+                          onChange={(e) => setMinDuration(e.target.value)}
+                          className="border border-gray-300 rounded-md p-1 w-16 text-sm"
+                          min="0"
+                          step="5"
+                        />
+                        <span className="text-xs text-gray-500">to</span>
+                        <input
+                          type="number"
+                          placeholder="Max"
+                          value={maxDuration}
+                          onChange={(e) => setMaxDuration(e.target.value)}
+                          className="border border-gray-300 rounded-md p-1 w-16 text-sm"
+                          min="0"
+                          step="5"
+                        />
+                        <span className="text-xs text-gray-500">min</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Activity
+                    </label>
+                    <select
+                      value={activityFilter}
+                      onChange={(e) => setActivityFilter(e.target.value)}
+                      className="border border-gray-300 rounded-md p-1"
+                    >
+                      <option value="">All</option>
+                      <option value="walk">Walk</option>
+                      <option value="bike">Bike</option>
+                    </select>
+                  </div>
+                  <div className="flex items-center gap-2 mt-6">
+                    <input
+                      type="checkbox"
+                      id="accessibleFilter"
+                      checked={accessibleFilter}
+                      onChange={(e) => setAccessibleFilter(e.target.checked)}
+                      className="h-4 w-4"
+                    />
+                    <label
+                      htmlFor="accessibleFilter"
+                      className="text-sm font-medium"
+                    >
+                      Accessible
+                    </label>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         )}
 

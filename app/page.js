@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import HeroSection from "@/components/HeroSection";
 import TrailCard from "@/components/TrailCard";
 import { fetchTrails } from "@/services/trails";
@@ -21,13 +22,19 @@ export default function Home() {
         const currentSeason =
           currentMonth >= 5 && currentMonth <= 9 ? "summer" : "winter";
 
-        // Filter trails for current season and sort by length (as a proxy for popularity)
+        // Filter trails for current season, length < 5km, and sort by length (as a proxy for popularity)
         const seasonalTrails = allTrails
           .filter((trail) => {
             const trailSeason = trail.season.toLowerCase();
-            return currentSeason === "summer"
-              ? trailSeason.includes("summer") || trailSeason.includes("all")
-              : trailSeason.includes("winter") || trailSeason.includes("all");
+            const isSeasonMatch =
+              currentSeason === "summer"
+                ? trailSeason.includes("summer") || trailSeason.includes("all")
+                : trailSeason.includes("winter") || trailSeason.includes("all");
+
+            // Only include trails less than 5 km
+            const isShortTrail = trail.length < 5;
+
+            return isSeasonMatch && isShortTrail;
           })
           .sort((a, b) => b.length - a.length) // Sort by length as a proxy for popularity
           .slice(0, 3); // Get top 3 trails
@@ -78,11 +85,35 @@ export default function Home() {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {featuredTrails.map((trail) => (
-                <TrailCard key={trail.id} trail={trail} />
-              ))}
-            </div>
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+                {featuredTrails.map((trail) => (
+                  <TrailCard key={trail.id} trail={trail} />
+                ))}
+              </div>
+
+              {/* View All Trails Button */}
+              <div className="text-center">
+                <Link
+                  href="/trails"
+                  className="inline-flex items-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-teal-600 hover:bg-teal-700 transition-colors duration-200"
+                >
+                  View All Trails
+                  <svg
+                    className="ml-2 -mr-1 w-5 h-5"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </Link>
+              </div>
+            </>
           )}
         </div>
       </section>

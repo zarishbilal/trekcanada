@@ -276,7 +276,7 @@ const TrailsMapView = ({ trails }) => {
       </Map>
 
       {/* Legend */}
-      <div className="absolute top-4 left-4 bg-white p-3 rounded-lg shadow-lg">
+      <div className="absolute bottom-4 left-4 bg-white p-3 rounded-lg shadow-lg">
         <h4 className="text-sm font-semibold text-gray-900 mb-2">
           Trail Difficulty
         </h4>

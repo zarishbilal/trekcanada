@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import TrailCard from "@/components/TrailCard";
+import SearchBar from "@/components/SearchBar";
 import { searchTrails, fetchTrails } from "@/services/trails";
 
 export default function TrailsPage() {
@@ -98,6 +99,18 @@ export default function TrailsPage() {
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Page Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">
+            Explore Canadian Trails
+          </h1>
+          <p className="text-lg text-gray-600 mb-6">
+            Discover amazing hiking trails across Canada's beautiful landscapes
+          </p>
+          {/* Search Bar */}
+          <SearchBar />
+        </div>
+
         {searchQuery && (
           <div className="mb-6">
             <h2 className="text-2xl font-semibold text-gray-900">
@@ -202,6 +215,15 @@ export default function TrailsPage() {
                 </div>
               </div>
             </div>
+          </div>
+        )}
+
+        {!searchQuery && (
+          <div className="mb-6">
+            <h2 className="text-2xl font-semibold text-gray-900">All Trails</h2>
+            <p className="text-gray-600">
+              Browse {displayedTrails.length} trails across Canada
+            </p>
           </div>
         )}
 

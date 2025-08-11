@@ -15,6 +15,10 @@ const HeroSection = () => {
     }
   };
 
+  const handleKeywordSearch = (keyword) => {
+    router.push(`/trails?search=${encodeURIComponent(keyword)}`);
+  };
+
   return (
     <div className="relative min-h-[80vh] flex items-center">
       {/* Background Image from blob */}
@@ -62,17 +66,41 @@ const HeroSection = () => {
 
           {/* Quick Filters */}
           <div className="flex flex-wrap justify-center gap-4 mb-12">
-            <button className="px-4 py-2 rounded-full bg-white/90 text-gray-900 hover:bg-white transition-colors">
+            <button
+              onClick={() => handleKeywordSearch("easy")}
+              className="px-4 py-2 rounded-full bg-white/90 text-gray-900 hover:bg-white hover:shadow-lg transition-all duration-200 cursor-pointer"
+            >
               Easy Trails
             </button>
-            <button className="px-4 py-2 rounded-full bg-white/90 text-gray-900 hover:bg-white transition-colors">
+            <button
+              onClick={() => handleKeywordSearch("family friendly")}
+              className="px-4 py-2 rounded-full bg-white/90 text-gray-900 hover:bg-white hover:shadow-lg transition-all duration-200 cursor-pointer"
+            >
               Family Friendly
             </button>
-            <button className="px-4 py-2 rounded-full bg-white/90 text-gray-900 hover:bg-white transition-colors">
+            <button
+              onClick={() => handleKeywordSearch("scenic views")}
+              className="px-4 py-2 rounded-full bg-white/90 text-gray-900 hover:bg-white hover:shadow-lg transition-all duration-200 cursor-pointer"
+            >
               Scenic Views
             </button>
-            <button className="px-4 py-2 rounded-full bg-white/90 text-gray-900 hover:bg-white transition-colors">
+            <button
+              onClick={() => handleKeywordSearch("dog friendly")}
+              className="px-4 py-2 rounded-full bg-white/90 text-gray-900 hover:bg-white hover:shadow-lg transition-all duration-200 cursor-pointer"
+            >
               Dog Friendly
+            </button>
+            <button
+              onClick={() => handleKeywordSearch("wheelchair accessible")}
+              className="px-4 py-2 rounded-full bg-white/90 text-gray-900 hover:bg-white hover:shadow-lg transition-all duration-200 cursor-pointer"
+            >
+              Accessible
+            </button>
+            <button
+              onClick={() => handleKeywordSearch("bike friendly")}
+              className="px-4 py-2 rounded-full bg-white/90 text-gray-900 hover:bg-white hover:shadow-lg transition-all duration-200 cursor-pointer"
+            >
+              Bike Trails
             </button>
           </div>
 

@@ -301,12 +301,81 @@ export async function searchTrails(query) {
     // Filter trails based on the search query
     const searchResults = allTrails.filter((trail) => {
       const searchLower = query.toLowerCase();
-      return (
+
+      // Search in basic trail information
+      const basicSearch =
         trail.name.toLowerCase().includes(searchLower) ||
         trail.park.toLowerCase().includes(searchLower) ||
         trail.province.toLowerCase().includes(searchLower) ||
-        trail.description.toLowerCase().includes(searchLower)
-      );
+        trail.description.toLowerCase().includes(searchLower) ||
+        trail.difficulty.toLowerCase().includes(searchLower) ||
+        trail.surface.toLowerCase().includes(searchLower) ||
+        trail.season.toLowerCase().includes(searchLower);
+
+      // Search for specific keywords and attributes
+      const keywordSearch =
+        // Dog-friendly trails (assume paved/boardwalk surfaces are more dog-friendly)
+        (searchLower.includes("dog") &&
+          ["paved", "boardwalk", "gravel"].includes(
+            trail.surface.toLowerCase()
+          )) ||
+        // Family-friendly (easy difficulty, shorter trails)
+        (searchLower.includes("family") &&
+          (trail.difficulty === "easy" || trail.length <= 5)) ||
+        // Wheelchair accessible
+        ((searchLower.includes("wheelchair") ||
+          searchLower.includes("accessible")) &&
+          ["paved", "boardwalk"].includes(trail.surface.toLowerCase()) &&
+          trail.width >= 1) ||
+        // Bike-friendly trails
+        ((searchLower.includes("bike") || searchLower.includes("cycling")) &&
+          ["paved", "gravel", "boardwalk", "mixed"].includes(
+            trail.surface.toLowerCase()
+          )) ||
+        // Water features (check if description mentions water-related terms)
+        ((searchLower.includes("water") ||
+          searchLower.includes("lake") ||
+          searchLower.includes("river") ||
+          searchLower.includes("falls") ||
+          searchLower.includes("creek")) &&
+          (trail.description.toLowerCase().includes("water") ||
+            trail.description.toLowerCase().includes("lake") ||
+            trail.description.toLowerCase().includes("river") ||
+            trail.description.toLowerCase().includes("falls") ||
+            trail.description.toLowerCase().includes("creek") ||
+            trail.name.toLowerCase().includes("lake") ||
+            trail.name.toLowerCase().includes("river") ||
+            trail.name.toLowerCase().includes("falls") ||
+            trail.name.toLowerCase().includes("creek"))) ||
+        // Mountain/scenic views
+        ((searchLower.includes("mountain") ||
+          searchLower.includes("scenic") ||
+          searchLower.includes("view")) &&
+          (trail.description.toLowerCase().includes("mountain") ||
+            trail.description.toLowerCase().includes("scenic") ||
+            trail.description.toLowerCase().includes("view") ||
+            trail.name.toLowerCase().includes("mountain") ||
+            trail.name.toLowerCase().includes("view"))) ||
+        // City/location based searches (check coordinates against major Canadian cities)
+        (searchLower.includes("calgary") && isNearCity(trail, "calgary")) ||
+        (searchLower.includes("vancouver") && isNearCity(trail, "vancouver")) ||
+        (searchLower.includes("toronto") && isNearCity(trail, "toronto")) ||
+        (searchLower.includes("montreal") && isNearCity(trail, "montreal")) ||
+        (searchLower.includes("ottawa") && isNearCity(trail, "ottawa")) ||
+        (searchLower.includes("edmonton") && isNearCity(trail, "edmonton")) ||
+        // Province searches
+        (searchLower.includes("alberta") &&
+          trail.province.toLowerCase().includes("alberta")) ||
+        (searchLower.includes("bc") &&
+          trail.province.toLowerCase().includes("british columbia")) ||
+        (searchLower.includes("british columbia") &&
+          trail.province.toLowerCase().includes("british columbia")) ||
+        (searchLower.includes("ontario") &&
+          trail.province.toLowerCase().includes("ontario")) ||
+        (searchLower.includes("quebec") &&
+          trail.province.toLowerCase().includes("quebec"));
+
+      return basicSearch || keywordSearch;
     });
 
     return searchResults;
@@ -314,4 +383,31 @@ export async function searchTrails(query) {
     console.error("Error searching trails:", error);
     throw error;
   }
+}
+
+// Helper function to check if trail is near a major city
+function isNearCity(trail, city) {
+  if (!trail.geometry?.coordinates || trail.geometry.coordinates.length === 0) {
+    return false;
+  }
+
+  const [lng, lat] = trail.geometry.coordinates[0];
+
+  const cityCoordinates = {
+    calgary: { lat: 51.0447, lng: -114.0719, radius: 1.5 }, // 150km radius
+    vancouver: { lat: 49.2827, lng: -123.1207, radius: 1.5 },
+    toronto: { lat: 43.6532, lng: -79.3832, radius: 1.5 },
+    montreal: { lat: 45.5017, lng: -73.5673, radius: 1.5 },
+    ottawa: { lat: 45.4215, lng: -75.6972, radius: 1.0 },
+    edmonton: { lat: 53.5461, lng: -113.4938, radius: 1.5 },
+  };
+
+  const cityData = cityCoordinates[city];
+  if (!cityData) return false;
+
+  // Simple distance calculation (rough approximation)
+  const latDiff = Math.abs(lat - cityData.lat);
+  const lngDiff = Math.abs(lng - cityData.lng);
+
+  return latDiff <= cityData.radius && lngDiff <= cityData.radius;
 }

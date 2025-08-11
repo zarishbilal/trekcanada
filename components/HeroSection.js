@@ -20,7 +20,7 @@ const HeroSection = () => {
   };
 
   return (
-    <div className="relative min-h-[70vh] sm:min-h-[75vh] md:min-h-[80vh] flex items-center pt-16 sm:pt-12 md:pt-8">
+    <div className="relative min-h-[70vh] sm:min-h-[75vh] md:min-h-[80vh] flex items-start justify-center pt-8 sm:pt-6 md:pt-6">
       {/* Background Image from blob */}
       <div className="absolute inset-0 z-0">
         <Image
@@ -36,10 +36,13 @@ const HeroSection = () => {
       </div>
       <div className="custom-container relative z-10">
         <div className="max-w-3xl mx-auto text-center">
-          <h1 className="text-4xl md:text-6xl font-bold text-primary mb-6 leading-tight">
+          <h1
+            className="text-4xl md:text-6xl font-bold mb-6 leading-tight"
+            style={{ color: "rgb(20, 72, 82" }}
+          >
             Discover Canada&apos;s National Parks
           </h1>
-          <p className="text-xl text-gray-800 mb-8 max-w-2xl mx-auto">
+          <p className="text-xl text-black mb-8 max-w-2xl mx-auto">
             Explore breathtaking trails, stunning landscapes, and unforgettable
             adventures in Canada&apos;s most beautiful natural spaces.
           </p>

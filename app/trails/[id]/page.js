@@ -8,14 +8,24 @@ import TrailMap from "@/components/TrailMap";
 import { reverseGeocode } from "@/services/geocoding";
 import Image from "next/image";
 import AIInsights from "@/components/AIInsights";
+import { useUserAuth } from "@/app/_utils/auth-context";
+import {
+  isFavorite,
+  addFavorite,
+  removeFavorite,
+} from "@/app/_utils/favorites";
+import { HeartIcon as HeartOutlineIcon } from "@heroicons/react/24/outline";
+import { HeartIcon as HeartSolidIcon } from "@heroicons/react/24/solid";
 
 export default function TrailPage() {
   const params = useParams();
+  const { user } = useUserAuth();
   const [trail, setTrail] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [locationDetails, setLocationDetails] = useState(null);
   const [googleData, setGoogleData] = useState(null);
+  const [favorited, setFavorited] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -71,6 +81,15 @@ export default function TrailPage() {
     fetchData();
   }, [params.id]);
 
+  // Check if trail is favorited when user or trail changes
+  useEffect(() => {
+    if (user && trail) {
+      isFavorite(user.uid, trail.id).then(setFavorited);
+    } else {
+      setFavorited(false);
+    }
+  }, [user, trail]);
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -101,13 +120,54 @@ export default function TrailPage() {
         <div className="bg-white rounded-lg shadow-lg overflow-hidden lg:w-2/3">
           {/* Trail Header */}
           <div className="p-6">
-            <h1 className="text-3xl font-bold text-gray-900">{trail.name}</h1>
-            <div className="mt-2 flex items-center text-gray-600">
-              <span className="mr-4">{trail.park}</span>
-              <span className="mr-4">{trail.province}</span>
-              <span className="mr-4">{trail.length} km</span>
-              <span className="mr-4">{trail.difficulty}</span>
-              <span>{trail.surface}</span>
+            <div className="flex items-start justify-between">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">
+                  {trail.name}
+                </h1>
+                <div className="mt-2 flex items-center text-gray-600">
+                  <span className="mr-4">{trail.park}</span>
+                  <span className="mr-4">{trail.province}</span>
+                  <span className="mr-4">{trail.length} km</span>
+                  <span className="mr-4">{trail.difficulty}</span>
+                  <span>{trail.surface}</span>
+                </div>
+              </div>
+              {/* Favorite Button */}
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (!user) {
+                    // Could redirect to sign in or show a message
+                    alert("Please sign in to add favorites");
+                  } else if (favorited) {
+                    removeFavorite(user.uid, trail.id).then(() =>
+                      setFavorited(false)
+                    );
+                  } else {
+                    addFavorite(user.uid, trail.id).then(() =>
+                      setFavorited(true)
+                    );
+                  }
+                }}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+              >
+                {favorited ? (
+                  <>
+                    <HeartSolidIcon className="w-5 h-5 text-red-500" />
+                    <span className="text-sm font-medium text-gray-700">
+                      Favorited
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <HeartOutlineIcon className="w-5 h-5 text-gray-400" />
+                    <span className="text-sm font-medium text-gray-700">
+                      Add to Favorites
+                    </span>
+                  </>
+                )}
+              </button>
             </div>
           </div>
 

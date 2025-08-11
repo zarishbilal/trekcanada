@@ -195,7 +195,8 @@ export default function TrailsPage() {
                     className="border border-gray-300 rounded-md p-1"
                   >
                     <option value="">All</option>
-                    <option value="short">0-5 km</option>
+                    <option value="short">0 km</option>
+                    <option value="short">1-5 km</option>
                     <option value="medium">5-10 km</option>
                     <option value="long">10+ km</option>
                   </select>

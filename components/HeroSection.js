@@ -20,7 +20,7 @@ const HeroSection = () => {
   };
 
   return (
-    <div className="relative min-h-[70vh] sm:min-h-[75vh] md:min-h-[80vh] flex items-center pt-20 sm:pt-16 md:pt-12">
+    <div className="relative min-h-[70vh] sm:min-h-[75vh] md:min-h-[80vh] flex items-center pt-16 sm:pt-12 md:pt-8">
       {/* Background Image from blob */}
       <div className="absolute inset-0 z-0">
         <Image
